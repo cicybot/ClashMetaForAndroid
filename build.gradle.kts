@@ -5,6 +5,7 @@ import com.android.build.gradle.BaseExtension
 import java.net.URL
 import java.util.*
 
+
 buildscript {
     repositories {
         mavenCentral()
@@ -35,7 +36,7 @@ subprojects {
         buildFeatures.buildConfig = true
         defaultConfig {
             if (isApp) {
-                applicationId = "com.github.metacubex.clash"
+                applicationId = "com.cicy.agent"
             }
 
             project.name.let { name ->

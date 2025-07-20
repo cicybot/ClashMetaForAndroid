@@ -1,13 +1,11 @@
 package com.github.kr328.clash
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import androidx.core.content.edit
 import com.github.kr328.clash.common.util.intent
 import com.github.kr328.clash.common.util.setUUID
 import com.github.kr328.clash.common.util.ticker
 import com.github.kr328.clash.design.ProfilesDesign
+import com.github.kr328.clash.design.R
 import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.service.model.Profile
 import com.github.kr328.clash.util.withProfile
@@ -18,7 +16,6 @@ import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.TimeUnit
-import com.github.kr328.clash.design.R
 
 class ProfilesActivity : BaseActivity<ProfilesDesign>() {
     override suspend fun main() {
@@ -59,7 +56,16 @@ class ProfilesActivity : BaseActivity<ProfilesDesign>() {
                         is ProfilesDesign.Request.Update ->
                             withProfile { update(it.profile.uuid) }
                         is ProfilesDesign.Request.Delete ->
-                            withProfile { delete(it.profile.uuid) }
+                            withProfile {
+                                val prefs = getSharedPreferences("CLASH_CONFIG", MODE_PRIVATE)
+                                val currentUUID = prefs.getString("currentUUID", null)
+                                if (currentUUID != null && currentUUID == it.profile.uuid.toString()) {
+                                    prefs.edit {
+                                        remove("currentUUID")
+                                        apply()
+                                    }
+                                }
+                                delete(it.profile.uuid) }
                         is ProfilesDesign.Request.Edit ->
                             startActivity(PropertiesActivity::class.intent.setUUID(it.profile.uuid))
                         is ProfilesDesign.Request.Active -> {

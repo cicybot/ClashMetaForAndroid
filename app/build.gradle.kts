@@ -9,6 +9,7 @@ plugins {
 }
 
 dependencies {
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     compileOnly(project(":hideapi"))
 
     implementation(project(":core"))
@@ -24,6 +25,7 @@ dependencies {
     implementation(libs.androidx.coordinator)
     implementation(libs.androidx.recyclerview)
     implementation(libs.google.material)
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
 }
 
 tasks.getByName("clean", type = Delete::class) {

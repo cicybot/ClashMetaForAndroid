@@ -1,0 +1,130 @@
+openapi: 3.0.0
+info:
+  title: CiCy Agent API
+  version: 1.0.0
+
+
+security:
+  - BearerAuth: []
+
+paths:
+  /agentAppInfo:
+    get:
+      summary: agentAppInfo
+      responses:
+        '200':
+          description: agentAppInfo response
+          content:
+            application/json:
+  /clashConfig.yaml:
+    get:
+      summary: Clash Config
+      responses:
+        '200':
+          description: Clash Config response
+          content:
+            text/plain:
+  /api:
+    post:
+      summary: api
+      parameters:
+        - name: method
+          in: query
+          description: The method to call
+          required: true
+          schema:
+            type: string
+            enum:
+              - agentAppInfo
+              - deviceInfo
+              - startClash
+              - stopClash
+              - updateClash
+              - getClashConfig
+              - onStartRecording
+              - onStopRecording
+              - onStartInput
+              - onStopInput
+              - screenWithXml
+              - getInstalledApps
+            default: agentAppInfo
+      responses:
+        '200':
+          description: agentAppInfo response
+          content:
+            application/json:
+  /jsonrpc:
+    post:
+      summary: json rpc
+      description: |
+        
+        ### pressKey:
+
+        ```json
+        {
+          "method": "pressKey",
+          "params":["recent"]
+        }
+        ```
+        ### EditClashConfig:
+
+        ```json
+        {
+          "method": "editClashConfig",
+          "params":["192.168.124.244","4445","10000",""]
+        }
+        ```
+      tags:
+        - jsonrpc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonRpcRequest'
+      responses:
+        '200':
+          description: BaseResponse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseResponse'
+        '404':
+          description: Client not found
+        '500':
+          description: Internal server error
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  # Optional, can remove if not using JWT
+      description: "Simple token authentication (just 'Bearer your-token')"
+  schemas:
+    BaseResponse:
+      type: object
+      properties:
+        err:
+          type: string
+        result:
+          type: object
+    actionRequest:
+      type: object
+      required:
+        - method
+      properties:
+        method:
+          type: string
+
+    JsonRpcRequest:
+      type: object
+      required:
+        - method
+        - params
+      properties:
+        method:
+          type: string
+        params:
+          type: array
+          items:
+            type: string
