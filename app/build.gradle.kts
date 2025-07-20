@@ -27,6 +27,12 @@ dependencies {
     implementation(libs.google.material)
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("com.google.code.gson:gson:2.10.1")
+//    implementation("org.yaml.snakeyaml:2.4")
+//    implementation("org.nanohttpd.nanohttpd:2.3.1")
+//    implementation("com.github.getActivity:XXPermissions:25.2")
+
+
+
 }
 
 tasks.getByName("clean", type = Delete::class) {
