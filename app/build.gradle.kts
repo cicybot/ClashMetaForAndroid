@@ -1,6 +1,3 @@
-import java.net.URL
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 
 plugins {
     kotlin("android")
@@ -27,9 +24,9 @@ dependencies {
     implementation(libs.google.material)
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("com.google.code.gson:gson:2.10.1")
+//    implementation("org.nanohttpd:nanohttpd:2.3.1")
 //    implementation("org.yaml.snakeyaml:2.4")
-//    implementation("org.nanohttpd.nanohttpd:2.3.1")
-//    implementation("com.github.getActivity:XXPermissions:25.2")
+//    implementation("com.github.getActivity:XXPermissions:20.0")
 
 }
 

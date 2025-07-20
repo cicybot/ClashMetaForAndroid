@@ -16,6 +16,8 @@ class StatusClient(private val context: Context) {
         }
 
     fun currentProfile(): String? {
+        Log.w("=======>>> currentProfile $uri")
+
         return try {
             val result = context.contentResolver.call(
                 uri,
@@ -23,6 +25,7 @@ class StatusClient(private val context: Context) {
                 null,
                 null
             )
+            Log.w(" current profile: $result")
 
             result?.getString("name")
         } catch (e: Exception) {

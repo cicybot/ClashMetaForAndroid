@@ -115,8 +115,7 @@ class RecordingService : Service() {
             serviceHandler = Handler(looper)
         }
         updateScreenInfo(resources.configuration.orientation)
-        val notification = createNotification()
-        startForeground(getClientNotifyID(RECORDING_NOTIFY_ID), notification) // 必须在5秒内调用
+
     }
     private fun createNotification(): Notification {
         // 1. 创建通知渠道（Android 8.0+ 必须）
@@ -507,8 +506,8 @@ class RecordingService : Service() {
         super.onStartCommand(intent, flags, startId)
 
         if (intent?.action == ACT_INIT_MEDIA_PROJECTION_AND_SERVICE) {
-//            createForegroundNotification()
-
+            val notification = createNotification()
+            startForeground(getClientNotifyID(RECORDING_NOTIFY_ID), notification) // 必须在5秒内调用
             Log.d(logTag, "service starting: ${startId}:${Thread.currentThread()}")
             val mediaProjectionManager =
                 getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager

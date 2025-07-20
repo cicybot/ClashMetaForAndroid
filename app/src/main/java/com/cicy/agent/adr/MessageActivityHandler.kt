@@ -74,7 +74,7 @@ class MessageActivityHandler(
                 "# - proxy",
                 "- { name:  ${nodeName}, type: http, server: 127.0.0.1, port: 4445 }"
             )
-            configYaml = configYaml.replace("MATCH,HTTP", "MATCH,DIRECT")
+            configYaml = configYaml.replace("MATCH, HTTP", "MATCH, DIRECT")
         }
 
         return JSONObject().apply {

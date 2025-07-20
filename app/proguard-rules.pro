@@ -57,3 +57,6 @@
     boolean getDEBUG() return false;
     boolean getRECOVER_STACK_TRACES() return false;
 }
+
+-keep class java.beans.** { *; }
+-dontwarn java.beans.**

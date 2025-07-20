@@ -71,7 +71,6 @@ abstract class BaseActivity<D : Design<*>> : AppCompatActivity(),
     CoroutineScope by MainScope(),
     Broadcasts.Observer {
 
-
     var recordingService: RecordingService? = null
 
     lateinit var localBroadcastManager: LocalBroadcastManager
