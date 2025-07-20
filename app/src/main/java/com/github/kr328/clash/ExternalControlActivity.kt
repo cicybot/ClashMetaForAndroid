@@ -5,6 +5,7 @@ import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.content.edit
 import com.github.kr328.clash.common.constants.Intents
 import com.github.kr328.clash.common.util.intent
 import com.github.kr328.clash.common.util.setUUID
@@ -37,10 +38,10 @@ class ExternalControlActivity : Activity(), CoroutineScope by MainScope() {
                 setActive(profile)
             } ?: throw IllegalStateException("Profile not found after creation")
         }
-//        getSharedPreferences("CLASH_CONFIG", MODE_PRIVATE).edit {
-//            putString("currentUUID", uuid.toString())
-//            apply()
-//        }
+        getSharedPreferences("CLASH_CONFIG", MODE_PRIVATE).edit {
+            putString("currentUUID", uuid.toString())
+            apply()
+        }
         return uuid
     }
 

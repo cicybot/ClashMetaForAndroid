@@ -9,6 +9,19 @@ plugins {
     id("golang-android")
 }
 
+tasks.withType<GolangBuildTask> {
+    if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+        // Method 1: Add Go path to PATH (macOS specific)
+        doFirst {
+            val goPath = "/usr/local/go/bin/go" // Standard macOS Go installation path
+            val modifiedCommand = mutableListOf<String>().apply {
+                add(goPath)
+                addAll(commandLine.drop(1)) // Keep original arguments
+            }
+            commandLine(modifiedCommand)
+        }
+    }
+}
 val golangSource = file("src/main/golang/native")
 
 golang {
