@@ -1,10 +1,12 @@
 package com.github.kr328.clash
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +14,7 @@ import android.os.IBinder
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity

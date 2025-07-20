@@ -31,8 +31,6 @@ dependencies {
 //    implementation("org.nanohttpd.nanohttpd:2.3.1")
 //    implementation("com.github.getActivity:XXPermissions:25.2")
 
-
-
 }
 
 tasks.getByName("clean", type = Delete::class) {
@@ -43,24 +41,24 @@ val geoFilesDownloadDir = "src/main/assets"
 
 task("downloadGeoFiles") {
 
-    val geoFilesUrls = mapOf(
-        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb" to "geoip.metadb",
-        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat" to "geosite.dat",
-        // "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country.mmdb" to "country.mmdb",
-        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb" to "ASN.mmdb",
-    )
-
-    doLast {
-        geoFilesUrls.forEach { (downloadUrl, outputFileName) ->
-            val url = URL(downloadUrl)
-            val outputPath = file("$geoFilesDownloadDir/$outputFileName")
-            outputPath.parentFile.mkdirs()
-            url.openStream().use { input ->
-                Files.copy(input, outputPath.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                println("$outputFileName downloaded to $outputPath")
-            }
-        }
-    }
+//    val geoFilesUrls = mapOf(
+//        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb" to "geoip.metadb",
+//        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat" to "geosite.dat",
+//        // "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country.mmdb" to "country.mmdb",
+//        "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb" to "ASN.mmdb",
+//    )
+//
+//    doLast {
+//        geoFilesUrls.forEach { (downloadUrl, outputFileName) ->
+//            val url = URL(downloadUrl)
+//            val outputPath = file("$geoFilesDownloadDir/$outputFileName")
+//            outputPath.parentFile.mkdirs()
+//            url.openStream().use { input ->
+//                Files.copy(input, outputPath.toPath(), StandardCopyOption.REPLACE_EXISTING)
+//                println("$outputFileName downloaded to $outputPath")
+//            }
+//        }
+//    }
 }
 
 afterEvaluate {

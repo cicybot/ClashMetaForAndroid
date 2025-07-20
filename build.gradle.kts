@@ -45,7 +45,7 @@ subprojects {
             }
 
             minSdk = 24
-            targetSdk = 35
+            targetSdk = 33
 
             versionName = "2.11.14"
             versionCode = 211014

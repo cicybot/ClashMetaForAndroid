@@ -115,8 +115,29 @@ class RecordingService : Service() {
             serviceHandler = Handler(looper)
         }
         updateScreenInfo(resources.configuration.orientation)
-        initNotification()
-        createForegroundNotification()
+        val notification = createNotification()
+        startForeground(getClientNotifyID(RECORDING_NOTIFY_ID), notification) // 必须在5秒内调用
+    }
+    private fun createNotification(): Notification {
+        // 1. 创建通知渠道（Android 8.0+ 必须）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "recording_channel_id",
+                "屏幕录制",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "正在录制屏幕内容"
+            }
+            getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
+        }
+
+        // 2. 构建通知
+        return NotificationCompat.Builder(this, "recording_channel_id")
+            .setContentTitle("屏幕录制中")
+            .setContentText("正在后台录制屏幕内容")
+            .setSmallIcon(com.github.kr328.clash.R.mipmap.ic_stat_logo) // 必须设置有效图标
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
     }
 
     @SuppressLint("WrongConstant")
@@ -191,7 +212,6 @@ class RecordingService : Service() {
 
     override fun onDestroy() {
         checkMediaPermission()
-        cancelNotification()
         super.onDestroy()
     }
 
@@ -402,69 +422,6 @@ class RecordingService : Service() {
         }
     }
 
-    private fun initNotification() {
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = "CiCyRecording"
-            val channelName = "CiCy Recording Service"
-            val channel = NotificationChannel(
-                channelId,
-                channelName, NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "CiCy Recording Service Channel"
-            }
-            channel.lightColor = Color.BLUE
-            channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-            notificationManager.createNotificationChannel(channel)
-            channelId
-        } else {
-            ""
-        }
-        notificationBuilder = NotificationCompat.Builder(this, notificationChannel)
-    }
-
-    @SuppressLint("UnspecifiedImmutableFlag")
-    private fun createForegroundNotification() {
-        val intent = Intent(this, RecordingService::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-            action = Intent.ACTION_MAIN
-            addCategory(Intent.CATEGORY_LAUNCHER)
-            putExtra("type", type)
-        }
-
-        val notification = notificationBuilder
-            .setOngoing(true)
-            .setSmallIcon(com.github.kr328.clash.design.R.drawable.ic_clash)
-            .setDefaults(Notification.DEFAULT_ALL)
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentTitle(DEFAULT_NOTIFY_TITLE)
-            .setContentText(RECORDING_NOTIFY_TEXT)
-            .setOnlyAlertOnce(true)
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    this,
-                    R.id.nf_clash_status,
-                    Intent().setComponent(Components.MAIN_ACTIVITY)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                    pendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT)
-                )
-            )
-            .setColor(
-                ContextCompat.getColor(
-                    this,
-                    com.github.kr328.clash.service.R.color.color_clash
-                )
-            )
-            .setWhen(System.currentTimeMillis())
-            .build()
-        startForeground(getClientNotifyID(RECORDING_NOTIFY_ID), notification)
-    }
-
-
-    private fun cancelNotification() {
-        notificationManager.cancel(getClientNotifyID(RECORDING_NOTIFY_ID))
-    }
 
     @Keep
     fun apiPointerInput(kind: Int, mask: Int, x: Int, y: Int) {
@@ -550,7 +507,7 @@ class RecordingService : Service() {
         super.onStartCommand(intent, flags, startId)
 
         if (intent?.action == ACT_INIT_MEDIA_PROJECTION_AND_SERVICE) {
-            createForegroundNotification()
+//            createForegroundNotification()
 
             Log.d(logTag, "service starting: ${startId}:${Thread.currentThread()}")
             val mediaProjectionManager =
