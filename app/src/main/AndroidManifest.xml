@@ -43,9 +43,19 @@
             android:exported="true"
             android:label="@string/launch_name"
             android:launchMode="singleTop">
+
+
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
                 <action android:name="android.intent.action.MAIN" />
+
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="cicyclash"/>
+                <data android:host="api"/>
+
             </intent-filter>
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
