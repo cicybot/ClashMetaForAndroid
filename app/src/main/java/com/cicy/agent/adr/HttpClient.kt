@@ -1,4 +1,4 @@
-package com.github.kr328.clash.util
+package com.cicy.agent.adr
 
 import java.io.BufferedReader
 import java.io.InputStreamReader

@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <data>
         <variable
             name="self"
             type="com.github.kr328.clash.design.MainDesign" />
         <variable
             name="clashRunning"
+            type="boolean" />
+
+        <variable
+            name="isRecordingEnabled"
+            type="boolean" />
+        <variable
+            name="isInputEnabled"
             type="boolean" />
         <variable
             name="forwarded"
@@ -67,7 +75,7 @@
                             android:layout_width="@dimen/main_logo_size"
                             android:layout_height="@dimen/main_logo_size"
                             android:layout_gravity="center"
-                            android:background="@drawable/ic_clash" />
+                            android:background="@mipmap/ic_stat_logo" />
                     </FrameLayout>
 
                     <TextView
@@ -116,6 +124,24 @@
                     app:icon="@drawable/ic_baseline_swap_vertical_circle"
                     app:text="@string/providers" />
 
+
+                <com.github.kr328.clash.design.view.LargeActionLabel
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/main_label_margin_vertical"
+                    android:onClick="@{() -> self.request(Request.ToggleInput)}"
+                    app:icon="@drawable/ic_baseline_assignment"
+                    app:text="@{isInputEnabled ? @string/accessibility_enable : @string/accessibility_disable}" />
+
+                <com.github.kr328.clash.design.view.LargeActionLabel
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/main_label_margin_vertical"
+                    android:onClick="@{() -> self.request(Request.ToggleRecording)}"
+                    app:icon="@drawable/ic_baseline_assignment"
+                    app:text="@{isRecordingEnabled ? @string/recording_enable : @string/recording_disable}" />
+
+
                 <com.github.kr328.clash.design.view.LargeActionLabel
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -132,21 +158,21 @@
                     app:icon="@drawable/ic_baseline_settings"
                     app:text="@string/settings" />
 
-                <com.github.kr328.clash.design.view.LargeActionLabel
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="@dimen/main_label_margin_vertical"
-                    android:onClick="@{() -> self.request(Request.OpenHelp)}"
-                    app:icon="@drawable/ic_baseline_help_center"
-                    app:text="@string/help" />
+<!--                <com.github.kr328.clash.design.view.LargeActionLabel-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginVertical="@dimen/main_label_margin_vertical"-->
+<!--                    android:onClick="@{() -> self.request(Request.OpenHelp)}"-->
+<!--                    app:icon="@drawable/ic_baseline_help_center"-->
+<!--                    app:text="@string/help" />-->
 
-                <com.github.kr328.clash.design.view.LargeActionLabel
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="@dimen/main_label_margin_vertical"
-                    android:onClick="@{() -> self.request(Request.OpenAbout)}"
-                    app:icon="@drawable/ic_baseline_info"
-                    app:text="@string/about" />
+<!--                <com.github.kr328.clash.design.view.LargeActionLabel-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginVertical="@dimen/main_label_margin_vertical"-->
+<!--                    android:onClick="@{() -> self.request(Request.OpenAbout)}"-->
+<!--                    app:icon="@drawable/ic_baseline_info"-->
+<!--                    app:text="@string/about" />-->
             </LinearLayout>
         </ScrollView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

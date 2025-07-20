@@ -3,28 +3,71 @@ package com.github.kr328.clash
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
-import androidx.core.app.ActivityCompat
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import com.cicy.agent.adr.InputService
+import com.cicy.agent.adr.RecordingService
 import com.github.kr328.clash.common.util.intent
 import com.github.kr328.clash.common.util.ticker
+import com.github.kr328.clash.core.bridge.Bridge
 import com.github.kr328.clash.design.MainDesign
+import com.github.kr328.clash.design.R
 import com.github.kr328.clash.design.ui.ToastDuration
 import com.github.kr328.clash.util.startClashService
 import com.github.kr328.clash.util.stopClashService
 import com.github.kr328.clash.util.withClash
 import com.github.kr328.clash.util.withProfile
-import com.github.kr328.clash.core.bridge.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
-import com.github.kr328.clash.design.R
 
 class MainActivity : BaseActivity<MainDesign>() {
+
+    private suspend fun showConfirmationDialog(
+        title: String,
+        confirmAction: suspend () -> Unit
+    ) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setPositiveButton("OK") { dialog, _ ->
+                // If caller is already in a coroutine scope
+                CoroutineScope(Dispatchers.Main.immediate).launch {
+                    confirmAction()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+    override fun updateRecordingStatus(state:String){
+        super.updateRecordingStatus(state)
+        launch {
+            design?.setIsRecordingEnabled(RecordingService.isReady)
+        }
+        when(state){
+            "on_recording_state_changed" -> {}
+            "on_screen_recording" -> {}
+            "on_screen_stopped_recording" -> {}
+        }
+
+    }
+    override fun onResume() {
+        super.onResume()
+        launch {
+            design?.setIsInputEnabled(InputService.isReady)
+        }
+
+    }
     override suspend fun main() {
         val design = MainDesign(this)
 
@@ -33,6 +76,11 @@ class MainActivity : BaseActivity<MainDesign>() {
         design.fetch()
 
         val ticker = ticker(TimeUnit.SECONDS.toMillis(1))
+
+        launch {
+            design.setIsRecordingEnabled(RecordingService.isReady)
+            design.setIsInputEnabled(InputService.isReady)
+        }
 
         while (isActive) {
             select<Unit> {
@@ -68,6 +116,26 @@ class MainActivity : BaseActivity<MainDesign>() {
                         }
                         MainDesign.Request.OpenSettings ->
                             startActivity(SettingsActivity::class.intent)
+                        MainDesign.Request.ToggleInput ->
+                        {
+                            if(InputService.isReady){
+                                showConfirmationDialog("确定要停止辅助么？", confirmAction = {
+                                    messageHandler.processAsync("onStopInput")
+                                })
+                            }else{
+                                messageHandler.processAsync("onStartInput")
+                            }
+                        }
+                        MainDesign.Request.ToggleRecording ->
+                        {
+                            if(RecordingService.isReady){
+                                showConfirmationDialog("确定要停止录制么？", confirmAction = {
+                                    messageHandler.processAsync("onStopRecording")
+                                })
+                            }else{
+                                messageHandler.processAsync("onStartRecording")
+                            }
+                        }
                         MainDesign.Request.OpenHelp ->
                             startActivity(HelpActivity::class.intent)
                         MainDesign.Request.OpenAbout ->
@@ -79,12 +147,16 @@ class MainActivity : BaseActivity<MainDesign>() {
                         design.fetchTraffic()
                     }
                 }
+
+
             }
         }
     }
 
     private suspend fun MainDesign.fetch() {
         setClashRunning(clashRunning)
+        setIsInputEnabled(InputService.isReady)
+        setIsRecordingEnabled(RecordingService.isReady)
 
         val state = withClash {
             queryTunnelState()
@@ -157,7 +229,9 @@ class MainActivity : BaseActivity<MainDesign>() {
                 requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+
     }
+
 }
 
 val mainActivityAlias = "${MainActivity::class.java.name}Alias"

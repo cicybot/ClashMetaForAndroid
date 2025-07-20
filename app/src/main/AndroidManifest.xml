@@ -2,21 +2,40 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" tools:remove=""/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" tools:remove=""/>
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <queries>
+        <intent>
+            <action android:name="android.accessibilityservice.AccessibilityService" />
+        </intent>
+    </queries>
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
@@ -29,6 +48,7 @@
         android:supportsRtl="true"
         android:theme="@style/BootstrapTheme"
         tools:ignore="GoogleAppIndexingWarning"
+        android:usesCleartextTraffic="true"
         tools:targetApi="N">
         <meta-data
             android:name="releaseName"
@@ -43,12 +63,9 @@
             android:exported="true"
             android:label="@string/launch_name"
             android:launchMode="singleTop">
-
-
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
                 <action android:name="android.intent.action.MAIN" />
-
             </intent-filter>
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
@@ -72,23 +89,14 @@
             android:label="@string/external_control_activity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
             <intent-filter>
-<!--                <action android:name="android.intent.action.VIEW" />-->
-
-<!--                <category android:name="android.intent.category.DEFAULT" />-->
-<!--                <category android:name="android.intent.category.BROWSABLE" />-->
-
-<!--                <data android:scheme="clash"/>-->
-<!--                <data android:scheme="clashmeta"/>-->
-<!--                <data android:host="install-config"/>-->
-
-
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="cicyclash"/>
-                <data android:host="api"/>
-
+                <data android:scheme="clash"/>
+                <data android:scheme="clashmeta"/>
+                <data android:host="install-config"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="com.github.metacubex.clash.meta.action.START_CLASH" />
@@ -227,5 +235,38 @@
                 <data android:scheme="android_secret_code" android:host="252746382" />
             </intent-filter>
         </receiver>
+
+
+        <service
+            android:name="com.cicy.agent.adr.InputService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="mediaProjection"
+            android:label="CiCy"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <activity
+            android:name="com.cicy.agent.adr.PermissionRequestTransparentActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/Transparent" />
+
+        <service
+            android:name="com.cicy.agent.adr.RecordingService"
+            android:enabled="true"
+            android:foregroundServiceType="mediaProjection">
+        </service>
+
+        <service
+            android:name="com.cicy.agent.adr.LocalServer"
+            android:foregroundServiceType="dataSync"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 </manifest>

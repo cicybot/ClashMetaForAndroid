@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Swagger UI</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/swagger-ui/swagger-ui.css" />
+</head>
+<body>
+<div id="swagger-ui"></div>
+<script src="/static/swagger-ui/swagger-ui-bundle.js"></script>
+<script>
+    // Load token from localStorage
+     const loadToken = () => {
+         return localStorage.getItem('swagger_token') || '';
+     };
+
+
+     window.onload = () => {
+         window.ui = SwaggerUIBundle({
+             url: "/openapi.json",
+             dom_id: '#swagger-ui',
+         });
+     };
+     const observer = new MutationObserver((mutations) => {
+         const bearerInput = document.querySelector('input#auth-bearer-value');
+         if (bearerInput) {
+             // Found the auth input
+             observer.disconnect();
+             const token = loadToken()
+             if (token) {
+                 bearerInput.value = token;
+
+                 // Trigger Swagger's auth system
+                 const event = new Event('input', { bubbles: true });
+                 bearerInput.dispatchEvent(event);
+             }
+
+             // Watch for token changes to save to localStorage
+             bearerInput.addEventListener('input', (e) => {
+                 localStorage.setItem('swagger_token', e.target.value);
+             });
+         }
+     });
+
+     // Start observing the Swagger UI container
+     observer.observe(document.body, {
+         childList: true,
+         subtree: true
+     });
+</script>
+</body>
+</html>
