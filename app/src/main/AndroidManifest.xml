@@ -25,9 +25,11 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" tools:remove=""/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" tools:remove=""/>
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <queries>
         <intent>
@@ -258,11 +260,7 @@
         <service
             android:name="com.cicy.agent.adr.RecordingService"
             android:enabled="true"
-            android:permission="android.permission.BIND_SCREEN_RECORD_SERVICE"
-            android:foregroundServiceType="mediaProjection|specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="screen_recording" />
+            android:foregroundServiceType="mediaProjection">
         </service>
 
         <service
