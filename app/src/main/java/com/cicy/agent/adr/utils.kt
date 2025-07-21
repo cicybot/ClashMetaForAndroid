@@ -12,6 +12,7 @@ import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileReader
+import androidx.core.net.toUri
 
 const val RES_FAILED = -100
 
@@ -74,7 +75,7 @@ fun startAction(context: Context, action: String) {
         context.startActivity(Intent(action).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             if (ACTION_ACCESSIBILITY_SETTINGS != action) {
-                data = Uri.parse("package:" + context.packageName)
+                data = ("package:" + context.packageName).toUri()
             }
         })
     } catch (e: Exception) {
@@ -84,10 +85,6 @@ fun startAction(context: Context, action: String) {
 
 fun getAbi(): String? {
     return Build.SUPPORTED_ABIS[0]
-}
-
-fun isX86_64(): Boolean {
-    return Build.SUPPORTED_ABIS[0].equals("x86_64")
 }
 
 fun requestPermission(context: Context, type: String) {

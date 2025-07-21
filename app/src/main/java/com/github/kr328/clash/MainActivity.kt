@@ -3,7 +3,6 @@ package com.github.kr328.clash
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AlertDialog
@@ -37,7 +36,6 @@ class MainActivity : BaseActivity<MainDesign>() {
         AlertDialog.Builder(this)
             .setTitle(title)
             .setPositiveButton("OK") { dialog, _ ->
-                // If caller is already in a coroutine scope
                 CoroutineScope(Dispatchers.Main.immediate).launch {
                     confirmAction()
                 }
@@ -49,6 +47,7 @@ class MainActivity : BaseActivity<MainDesign>() {
             .create()
             .show()
     }
+
     override fun updateRecordingStatus(state:String){
         super.updateRecordingStatus(state)
         launch {

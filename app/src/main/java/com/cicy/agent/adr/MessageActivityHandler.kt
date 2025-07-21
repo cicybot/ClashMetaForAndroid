@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import com.github.kr328.clash.BaseActivity
 import com.github.kr328.clash.R
+import com.github.kr328.clash.remote.Remote
 import com.hjq.permissions.XXPermissions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -43,94 +44,6 @@ class MessageActivityHandler(
         }
     }
 
-    private fun getVpnDefaultConfig(): String {
-        return try {
-            getContext().resources?.openRawResource(R.raw.config)?.bufferedReader().use {
-                it?.readText()
-                    ?: ""
-            }
-        } catch (e: Exception) {
-            Log.e("LeafVpnService", "Error reading default config", e)
-            ""
-        }
-    }
-
-    private fun getClashConfig(): JSONObject {
-        val sharedPref =
-            getContext().getSharedPreferences("clash_preferences", Context.MODE_PRIVATE)
-        val proxyPoolHost = sharedPref?.getString("proxyPoolHost", "") ?: ""
-        val proxyPoolPort = sharedPref?.getString("proxyPoolPort", "") ?: "4445"
-        val accountIndex = sharedPref?.getString("accountIndex", "") ?: "10000"
-        val allowList = sharedPref?.getString("allowList", "") ?: ""
-        var configYaml = getVpnDefaultConfig()
-        val nodeName = "HTTP_NODE"
-        if (proxyPoolHost.isNotEmpty() && !proxyPoolHost.equals("127.0.0.1")) {
-            configYaml = configYaml.replace(
-                "# - proxy",
-                "- { name: ${nodeName}, type: http, server: ${proxyPoolHost}, port: ${proxyPoolPort}, username: Account_${accountIndex}, password: pwd  }"
-            )
-        } else {
-            configYaml = configYaml.replace(
-                "# - proxy",
-                "- { name:  ${nodeName}, type: http, server: 127.0.0.1, port: 4445 }"
-            )
-            configYaml = configYaml.replace("MATCH, HTTP", "MATCH, DIRECT")
-        }
-
-        return JSONObject().apply {
-            put("proxyPoolHost", proxyPoolHost)
-            put("proxyPoolPort", proxyPoolPort)
-            put("accountIndex", accountIndex)
-            put("allowList", allowList)
-            put("configYaml", configYaml)
-        }
-    }
-
-    private fun editClashConfig(params: JSONArray): String {
-        val sharedPref = context.getSharedPreferences("clash_preferences", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit().apply {
-            putString("proxyPoolHost", params.optString(0, ""))
-            putString("proxyPoolPort", params.optString(1, "4455"))
-            putString("accountIndex", params.optString(2, ""))
-            putString("allowList", params.optString(3, ""))
-        }
-        val success = editor.commit()
-        if (success) {
-            return "Save successful"
-        } else {
-            return "Save failed"
-        }
-    }
-
-
-    private fun getDeviceInfo(): JSONObject {
-        val httpClient = HttpClient()
-        try {
-            val (getStatus, getResponse) = httpClient.get(
-                "http://127.0.0.1:4447/deviceInfo",
-                mapOf("Accept" to "application/json")
-            )
-            if (getStatus != 200) {
-                var configContent = ""
-                val configFile = File("/data/local/tmp/config_server.txt")
-                if (configFile.exists()) {
-                    configContent = configFile.readText().trim()
-                }
-                val clientId = getClientId()
-                return JSONObject().apply {
-                    put("serverUrl", configContent)
-                    put("clientId", clientId)
-                }
-            } else {
-                val jsonResponse = JSONObject(getResponse)
-                return jsonResponse.getJSONObject("result")
-            }
-        } catch (e: Exception) {
-            return JSONObject().apply {
-                put("err", "Failed to parse response: ${e}")
-            }
-        }
-    }
 
     private fun getScreenSize(windowManager: WindowManager): Pair<Int, Int> {
         var w = 0
@@ -161,6 +74,7 @@ class MessageActivityHandler(
         val id = Build.ID  // 编译版本ID
         val serverUrl = readServerUrlFromFile()
         val abi = getAbi()
+
         val payload = JSONObject().apply {
             put("abi", abi)
             put("clientId", getClientId())
@@ -169,7 +83,7 @@ class MessageActivityHandler(
             put("inputIsReady", InputService.isReady)
             put("RecordingIsReady", RecordingService.isReady)
             put("width", screenWidth)
-            put("hegith", screenHeight)
+            put("height", screenHeight)
             put("dpi", context.resources.displayMetrics.density)
             put("ipAddress", ipAddress)
             put("brand", brand)
@@ -179,10 +93,7 @@ class MessageActivityHandler(
             put("buildVersion", version)
             put("buildId", id)
             put("version", "1.0.1")
-            put("isClashRunning", getContext().isClashRunning())
-            put("clashConfig", getClashConfig())
-//            put("notificationsIsGranted", false)
-//            put("queryAllPackagesListIsGranted", false)
+            put("isClashRunning", Remote.broadcasts.clashRunning)
         }
         return payload
     }
@@ -219,7 +130,6 @@ class MessageActivityHandler(
             val params = json.getJSONArray("params")
 
             when (method) {
-                "deviceInfo" -> response = getDeviceInfo()
                 "agentAppInfo" -> {
                     response = getAgentAppInfo()
                 }
@@ -246,7 +156,6 @@ class MessageActivityHandler(
                     }
 
                 }
-
                 "inputText" -> {
                     if (!InputService.isReady) {
                         response.put("err", "InputService is not open")
@@ -301,99 +210,34 @@ class MessageActivityHandler(
                     }
                 }
 
-                "screenWithXml" -> {
-                    var imgData = ""
-                    var imgLen = 0
-                    if (RecordingService.isReady) {
-                        imgLen = RecordingService.screenImgData.length
-                        imgData = "data:image/jpeg;base64,${RecordingService.screenImgData}"
-                    }
-
-                    var xml = ""
-                    if (InputService.isReady) {
-                        xml = InputService.ctx?.getDumpAsUiAutomatorXml().toString()
-                    }
-                    response = JSONObject().apply {
-                        put("xml", xml)
-                        put("imgData", imgData)
-                        put("imgLen", imgLen)
-                    }
-                }
-
-                "startAction" -> {
-                    startAction(context, params.get(0) as String)
-                }
-
                 "showToast" -> {
-                    Toast.makeText(context, params.get(0) as String, Toast.LENGTH_SHORT).show()
-                }
-
-                "getInstalledApps" -> {
-                    val isAll = params.optString(0).equals("all")
-                    val apps = PackagesList(context).getInstalledApps(isAll)
-                    response = JSONObject().apply {
-                        put("apps", apps)
-                    }
-                }
-
-                "updateClash" -> {
-                    getContext().updateClash()
-                }
-
-                "getClashConfig" -> {
-                    response = getClashConfig()
-                }
-
-                "editClashConfig" -> {
-                    val res = editClashConfig(params)
-                    getContext().updateClash()
-                    response = JSONObject().apply {
-                        put("res", res)
-                    }
-                }
-
-                "startClash" -> {
-                    val res = getContext().startClash()
-                    response = JSONObject().apply {
-                        put("res", res)
-                    }
-                }
-
-                "stopClash" -> {
-                    val res = getContext().stopClash()
-                    response = JSONObject().apply {
-                        put("res", res)
-                    }
+                    Toast.makeText(context, params.optString(0), Toast.LENGTH_SHORT).show()
                 }
 
                 "getOpencvJs" -> {
                     val text = readFileFromAssets("opencv.js")
-                    JSONObject().apply {
+                    response = JSONObject().apply {
                         put("text", text)
                     }
                 }
 
                 "checkPermission" -> {
                     val isGranted = XXPermissions.isGranted(context, params.get(0) as String)
-                    JSONObject().apply {
+                    response = JSONObject().apply {
                         put("isGranted", isGranted)
                     }
                 }
 
                 "requestPermission" -> {
                     requestPermission(context, params.get(0) as String)
-                    JSONObject().apply {
+                    response = JSONObject().apply {
                         put("ok", true)
                     }
                 }
 
-                "requestNotificationPermission" -> {
-                    requestPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
-                    JSONObject().apply {
-                        put("ok", true)
-                    }
+                "startAction" -> {
+                    startAction(context, params.get(0) as String)
                 }
-
                 else -> {
                     response.put("err", "Unknown method: $method")
                 }

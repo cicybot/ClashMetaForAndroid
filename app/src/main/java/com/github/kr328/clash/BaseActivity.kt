@@ -1,28 +1,22 @@
 package com.github.kr328.clash
-import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.cicy.agent.adr.ACT_REQUEST_MEDIA_PROJECTION
-import com.cicy.agent.adr.InputService
 import com.cicy.agent.adr.LocalServer
 import com.cicy.agent.adr.MessageActivityHandler
 import com.cicy.agent.adr.MessageHandler
@@ -36,7 +30,6 @@ import com.github.kr328.clash.common.compat.isLightStatusBarsCompat
 import com.github.kr328.clash.common.compat.isSystemBarsTranslucentCompat
 import com.github.kr328.clash.core.bridge.ClashException
 import com.github.kr328.clash.design.Design
-import com.github.kr328.clash.design.MainDesign
 import com.github.kr328.clash.design.R
 import com.github.kr328.clash.design.model.DarkMode
 import com.github.kr328.clash.design.store.UiStore
@@ -46,22 +39,16 @@ import com.github.kr328.clash.design.util.resolveThemedColor
 import com.github.kr328.clash.design.util.showExceptionToast
 import com.github.kr328.clash.remote.Broadcasts
 import com.github.kr328.clash.remote.Remote
-import com.github.kr328.clash.service.model.Profile
 import com.github.kr328.clash.util.ActivityResultLifecycle
 import com.github.kr328.clash.util.ApplicationObserver
-import com.github.kr328.clash.util.startClashService
-import com.github.kr328.clash.util.stopClashService
-import com.github.kr328.clash.util.withProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.resume
@@ -311,95 +298,6 @@ abstract class BaseActivity<D : Design<*>> : AppCompatActivity(),
         recordingService?.destroy()
     }
 
-    fun isClashRunning(): Boolean {
-        return clashRunning
-    }
-
-    fun startClash(): String {
-        if(!isClashRunning()){
-            val vpnRequest = startClashService()
-            if (vpnRequest != null) {
-                Toast.makeText(this, R.string.unable_to_start_vpn, Toast.LENGTH_LONG).show()
-            }else{
-                Toast.makeText(this, R.string.external_control_started, Toast.LENGTH_LONG).show()
-            }
-        }
-        return "clash trigger start"
-    }
-
-    fun stopClash():String {
-        if(isClashRunning()){
-            stopClashService()
-            Toast.makeText(this, R.string.external_control_stopped, Toast.LENGTH_LONG).show()
-        }
-        return "clash trigger stop"
-    }
-
-    private suspend fun createUUID(name: String, url: String): UUID {
-        val uuid = withProfile {
-            create(Profile.Type.Url, name).also {
-                patch(it, name, url, 0)
-            }
-        }
-        withProfile {
-            commit(uuid)
-            queryByUUID(uuid)?.let { profile ->
-                setActive(profile)
-            } ?: throw IllegalStateException("Profile not found after creation")
-        }
-        getSharedPreferences("CLASH_CONFIG", MODE_PRIVATE).edit {
-            putString("currentUUID", uuid.toString())
-            apply()
-        }
-        return uuid
-    }
-
-    fun updateClash(){
-        if(isClashRunning()){
-            stopClashService()
-        }
-        val url = "http://127.0.0.1:${LocalServer.PORT}/clashConfig.yaml"
-        val name = "代理 ${SimpleDateFormat("dd HH:mm", Locale.getDefault()).format(Date())}"
-        launch {
-            val prefs = getSharedPreferences("CLASH_CONFIG", MODE_PRIVATE)
-            val currentUUID = prefs.getString("currentUUID", null)
-            if(currentUUID == null){
-                createUUID(name,url)
-                startClashDelay()
-            }else{
-                val uuid = UUID.fromString(currentUUID)
-                withProfile {
-                    val profile = queryByUUID(uuid)
-                    if(profile == null){
-                        createUUID(name,url)
-                        startClashDelay()
-                    }else{
-                        patch(uuid, name, url, 0)
-                        update(uuid)
-                        setActive(profile)
-                        startClashDelay()
-                    }
-                }
-            }
-        }
-
-    }
-    private fun startClashDelay(){
-        launch(Dispatchers.Main) {
-            delay(100L)
-            if(!isClashRunning()){
-                while (true){
-                    delay(200L)
-                    if(!isClashRunning()){
-                        startClash()
-                        break
-                    }
-                }
-            }else{
-                startClash()
-            }
-        }
-    }
 
     private fun requestMediaProjection() {
         val intent = Intent(this, PermissionRequestTransparentActivity::class.java).apply {

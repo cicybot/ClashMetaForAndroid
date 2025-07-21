@@ -25,7 +25,7 @@ paths:
           content:
             text/plain:
   /api:
-    post:
+    get:
       summary: api
       parameters:
         - name: method
@@ -37,6 +37,7 @@ paths:
             enum:
               - agentAppInfo
               - deviceInfo
+              - isClashRunning
               - startClash
               - stopClash
               - updateClash
@@ -66,14 +67,78 @@ paths:
           "params":["recent"]
         }
         ```
-        ### EditClashConfig:
+        ### editClashProxyConfig:
 
         ```json
         {
-          "method": "editClashConfig",
-          "params":["192.168.124.244","4445","10000",""]
+          "method": "editClashProxyConfig",
+          "params":["192.168.124.244","4445","10000"]
         }
         ```
+        
+        ### showToast:
+
+        ```json
+        {
+          "method": "showToast",
+          "params":["Test Toast Message"]
+        }
+        ```
+        
+        ### checkPermission:
+
+        ```json
+        {
+          "method": "checkPermission",
+          "params":["android.permission.POST_NOTIFICATIONS"]
+        }
+        ```
+        ### requestPermission:
+
+        ```json
+        {
+          "method": "requestPermission",
+          "params":["android.permission.POST_NOTIFICATIONS"]
+        }
+        ```
+        ### startAction:
+
+        ```json
+        {
+          "method": "startAction",
+          "params":["android.settings.APPLICATION_DETAILS_SETTINGS"]
+        }
+        ```
+        ### setClashAutoRestart:
+
+        ```json
+        {
+          "method": "setClashAutoRestart",
+          "params":[false]
+        }
+        ```
+        
+        ### setAccessControlMode:
+
+        ```json
+        {
+          "method": "setAccessControlMode",
+          "params":["AcceptAll"]
+        }
+        ```
+        
+        
+        ### setAccessControlPackages:
+
+        ```json
+        {
+          "method": "setAccessControlPackages",
+          "params":[["org.telegram.messenger.web"]]
+        }
+        ```
+        
+        
+
       tags:
         - jsonrpc
       requestBody:

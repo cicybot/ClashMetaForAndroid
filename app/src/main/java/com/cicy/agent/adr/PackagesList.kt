@@ -1,6 +1,7 @@
 package com.cicy.agent.adr
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -15,7 +16,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
-class PackagesList(private val context: AppCompatActivity) {
+class PackagesList(private val context: Context) {
 
     fun getInstalledApps(isAll: Boolean): JSONArray {
         if (!hasQueryAllPackagesPermission()) {
