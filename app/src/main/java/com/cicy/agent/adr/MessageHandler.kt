@@ -83,14 +83,14 @@ class MessageHandler(private val service: Service) {
             service.getSharedPreferences("clash_preferences", Context.MODE_PRIVATE)
         val proxyPoolHost = sharedPref?.getString("proxyPoolHost", "") ?: ""
         val proxyPoolPort = sharedPref?.getString("proxyPoolPort", "") ?: "4445"
-        val accountIndex = sharedPref?.getString("accountIndex", "") ?: "10000"
+        val username = sharedPref?.getString("username", "") ?: "Account_10000"
         val password = sharedPref?.getString("password", "") ?: "pwd"
         var configYaml = getClashDefaultConfig()
         val nodeName = "HTTP_NODE"
         if (proxyPoolHost.isNotEmpty() && !proxyPoolHost.equals("127.0.0.1")) {
             configYaml = configYaml.replace(
                 "# - proxy",
-                "- { name: ${nodeName}, type: http, server: ${proxyPoolHost}, port: ${proxyPoolPort}, username: Account_${accountIndex}, password: ${password}  }"
+                "- { name: ${nodeName}, type: http, server: ${proxyPoolHost}, port: ${proxyPoolPort}, username: ${username}, password: ${password}  }"
             )
         } else {
             configYaml = configYaml.replace(
@@ -112,7 +112,7 @@ class MessageHandler(private val service: Service) {
 
             put("proxyPoolHost", proxyPoolHost)
             put("proxyPoolPort", proxyPoolPort)
-            put("accountIndex", accountIndex)
+            put("username", username)
             put("password", password)
             put("configYaml", configYaml)
         }
@@ -171,7 +171,7 @@ class MessageHandler(private val service: Service) {
         val editor = sharedPref.edit().apply {
             putString("proxyPoolHost", params.optString(0, ""))
             putString("proxyPoolPort", params.optString(1, "4455"))
-            putString("accountIndex", params.optString(2, ""))
+            putString("username", params.optString(2, ""))
             putString("password", params.optString(3, "pwd"))
         }
         val success = editor.commit()
