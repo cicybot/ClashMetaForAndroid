@@ -81,7 +81,7 @@ class MessageActivityHandler(
             put("serverUrl", serverUrl)
             put("model", model)
             put("inputIsReady", InputService.isReady)
-            put("RecordingIsReady", RecordingService.isReady)
+            put("recordingIsReady", RecordingService.isReady)
             put("width", screenWidth)
             put("height", screenHeight)
             put("dpi", context.resources.displayMetrics.density)
