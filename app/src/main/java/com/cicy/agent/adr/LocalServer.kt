@@ -96,7 +96,7 @@ class LocalServer : Service() {
             initWsClient()
             httpServer = LocalHttpServer(this, messageHandler, PORT)
             httpServer?.start()
-            //messageHandler.sendAsyncMessageToActivity("onStartRecording")
+            messageHandler.sendAsyncMessageToActivity("onStartRecording")
             isRunning = true
 
         } catch (e: IOException) {
