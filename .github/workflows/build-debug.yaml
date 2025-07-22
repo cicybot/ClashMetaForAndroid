@@ -9,6 +9,27 @@ on:
       - with-server
 
 jobs:
+
+  Release:
+    name: Release pushed tag
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          if gh release view "Alpha" --repo="${{ github.repository }}" &> /dev/null; then
+            echo "Release Alpha already exists."
+          else
+            gh release create "Alpha" \
+              --repo="${{ github.repository }}" \
+              --title="Alpha" \
+              --draft \
+              --generate-notes
+            echo "Release Alpha created."
+          fi
+
   BuildDebug:
     runs-on: ubuntu-latest
     steps:
@@ -57,8 +78,11 @@ jobs:
 
       - name: Build
         if: success()
-        run: ./gradlew --no-daemon app:assembleAlphaRelease
-          
+        run: |
+          ./gradlew --no-daemon app:assembleAlphaRelease
+          gh release upload Alpha app/build/outputs/apk/alpha/release/*.apk --clobber
+      
+
       - name: Upload Aritfact (universal)
         uses: actions/upload-artifact@v4
         if: ${{  success() }}
