@@ -24,6 +24,20 @@ paths:
           description: Clash Config response
           content:
             text/plain:
+
+  /file:
+    get:
+      summary: file
+      parameters:
+        - name: path
+          in: query
+          description: path
+          required: true
+      responses:
+        '200':
+          description: response
+          content:
+            application/octet-stream:
   /api:
     get:
       summary: api
@@ -137,7 +151,33 @@ paths:
         }
         ```
         
+        ### shell:
+
+        ```json
+        {
+          "method": "shell",
+          "params":["pwd"]
+        }
+        ```
         
+        ### readFile:
+
+        ```json
+        {
+          "method": "readFile",
+          "params":["/data/local/tmp/daemon.pid"]
+        }
+        ```
+        
+        ### writeFile:
+
+        ```json
+        {
+          "method": "writeFile",
+          "params":["/data/local/tmp/test.txt","text"]
+        }
+        ```
+      
 
       tags:
         - jsonrpc

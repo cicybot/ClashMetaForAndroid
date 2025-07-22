@@ -7,6 +7,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.yaml.snakeyaml.Yaml
 import java.io.InputStream
+import java.net.URLEncoder
 
 class LocalHttpServer(
     private val service: Service,
@@ -22,7 +23,9 @@ class LocalHttpServer(
             "agentAppInfo" -> {
                 handleApiRequest("agentAppInfo")
             }
-
+            "file" -> {
+                handleFileFromAgentRequest(session)
+            }
             "api" -> {
                 val allParams = session.parameters.mapValues {
                     it.value.firstOrNull() ?: ""
@@ -30,11 +33,42 @@ class LocalHttpServer(
                 val method = allParams["method"]
                 handleApiRequest(method.toString())
             }
-
             "openapi.json" -> handleOpenapiJsonRequest()
             else -> handleFileRequest(path)
         }
         return response
+    }
+
+    private fun handleFileFromAgentRequest(session: IHTTPSession): Response {
+        val allParams = session.parameters.mapValues {
+            it.value.firstOrNull() ?: ""
+        }
+        val path = allParams["path"]
+        if(path?.isEmpty() == true){
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "500 ERROR")
+        }
+        val filename = path!!.substringAfterLast('/').takeIf { it.isNotBlank() } ?: "file"
+
+        val agentUrl = "http://127.0.0.1:4447/file?path=${URLEncoder.encode(path, "UTF-8")}"
+        val httpClient = HttpClient()
+        try {
+            val (_, getResponse) = httpClient.get(
+                agentUrl,
+            )
+            return newFixedLengthResponse(Response.Status.OK, "application/octet-stream", getResponse).apply {
+                addHeader("Content-Disposition", "inline; filename=\"${filename}\"")
+                val contentType = when (filename.substringAfterLast('.').lowercase()) {
+                    "pdf" -> "application/pdf"
+                    "jpg", "jpeg" -> "image/jpeg"
+                    "png" -> "image/png"
+                    "txt" -> "text/plain"
+                    else -> "application/octet-stream"
+                }
+                addHeader("Content-type",contentType)
+            }
+        } catch (_: Exception) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "500 ERROR")
+        }
     }
 
     private fun convertYamlToJson(yamlContent: String): String {
@@ -112,7 +146,7 @@ class LocalHttpServer(
                 bytes.inputStream(),
                 bytes.size.toLong()
             )
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "404 Not Found")
         }
     }
@@ -131,10 +165,18 @@ class LocalHttpServer(
             val method = requestJson.optString("method", "")
             val id = requestJson.opt("id") ?: "1"
             val params = requestJson.optJSONArray("params") ?: JSONArray()
+
             val result = messageHandler.process(method, params)
+
             val responseJson = JSONObject()
+
             if (result.optString("err").isEmpty()) {
-                responseJson.put("result", result)
+                val res = result.opt("result")
+                var res1: Any = result
+                if(res != null){
+                    res1  = res
+                }
+                responseJson.put("result", res1)
             } else {
                 responseJson.put("err", result["err"])
             }

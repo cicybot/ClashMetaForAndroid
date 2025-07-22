@@ -156,11 +156,16 @@ class LocalServer : Service() {
                             }
                         }
 
+                        val res = result.opt("result")
+                        var res1: Any = result
+                        if(res != null){
+                            res1  = res
+                        }
                         val callbackResponse = JSONObject().apply {
                             put("to", fromClientId)
                             put("action", "callback")
                             put("id", id)
-                            put("payload", result) // Empty payload as in your example
+                            put("payload", res1) // Empty payload as in your example
                         }
                         webSocket.send(callbackResponse.toString())
                     }

@@ -38,32 +38,61 @@ class MessageHandler(private val service: Service) {
     private val pendingCallbacks = mutableMapOf<String, (Result<String>) -> Unit>()
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    private fun getDeviceInfo(): JSONObject {
+    private fun postAgent(method: String, params: JSONArray): JSONObject {
         val httpClient = HttpClient()
         try {
-            val (getStatus, getResponse) = httpClient.get(
-                "http://127.0.0.1:4447/deviceInfo",
-                mapOf("Accept" to "application/json")
+            val (getStatus, getResponse) = httpClient.post(
+                "http://127.0.0.1:4447/",
+                JSONObject().apply {
+                    put("method",method)
+                    put("params",params)
+                    put("id","1")
+                    put("jsonrpc","2.0")
+                }.toString(),
+                mapOf(
+                    "Accept" to "application/json",
+                    "Content-Type" to "application/json"
+                )
             )
             if (getStatus != 200) {
                 throw Error("response status Code is not 200")
             } else {
                 val jsonResponse = JSONObject(getResponse)
-                return jsonResponse.getJSONObject("result")
+
+                if (jsonResponse.has("err")) {
+                    val error = jsonResponse.getJSONObject("err")
+                    return JSONObject().apply {
+                        put("err", error)
+                    }
+                }else{
+
+                    return when (val result = jsonResponse.opt("result")) {
+                        is JSONObject -> JSONObject().apply {
+                            put("result", result)
+                        }
+                        is JSONArray -> JSONObject().apply {
+                            put("result", result)
+                        }
+                        is String -> JSONObject().apply {
+                            put("result", result)
+                        }
+                        is Number -> JSONObject().apply {
+                            put("result", result)
+                        }
+                        is Boolean -> JSONObject().apply {
+                            put("result", result)
+                        }
+                        else -> JSONObject().apply {
+                            put("result", result)
+                        }
+                    }
+                }
+
             }
         } catch (e: Exception) {
-            var configContent = ""
-            val configFile = File("/data/local/tmp/config_server.txt")
-            if (configFile.exists()) {
-                configContent = configFile.readText().trim()
-            }
-            val clientId = getClientId()
             return JSONObject().apply {
-                put("serverUrl", configContent)
-                put("clientId", clientId)
-                put("errMsg", e)
+                put("err", e)
             }
-
         }
     }
 
@@ -196,10 +225,12 @@ class MessageHandler(private val service: Service) {
         }
     }
 
-
     fun process(method: String, params: JSONArray): JSONObject {
         return when (method) {
-            "deviceInfo" -> getDeviceInfo()
+            "deviceInfo" -> postAgent(method,params)
+            "shell" -> postAgent(method,params)
+            "readFile" -> postAgent(method,params)
+            "writeFile" -> postAgent(method,params)
             "screenWithXml" -> {
                 var imgData = ""
                 var imgLen = 0
