@@ -300,7 +300,6 @@ class MessageHandler(private val service: Service) {
                     updateClash()
                 }
                 JSONObject().put("ok", true)
-
             }
             else -> {
                 try {

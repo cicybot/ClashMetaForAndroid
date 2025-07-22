@@ -8,6 +8,10 @@ on:
       - main
       - Alpha
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
+
 jobs:
 
   Release:
