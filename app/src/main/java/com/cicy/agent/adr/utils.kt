@@ -33,6 +33,8 @@ const val RECORDING_NOTIFY_ID = 23
 const val LOCAL_SERVER_NOTIFY_ID = 2
 const val NOTIFY_ID_OFFSET = 600
 
+const val AGENT_JSONRPC_PORT = 4447
+
 
 fun getClientNotifyID(clientID: Int): Int {
     return clientID + NOTIFY_ID_OFFSET

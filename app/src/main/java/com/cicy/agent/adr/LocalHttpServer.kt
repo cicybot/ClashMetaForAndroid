@@ -49,7 +49,7 @@ class LocalHttpServer(
         }
         val filename = path!!.substringAfterLast('/').takeIf { it.isNotBlank() } ?: "file"
 
-        val agentUrl = "http://127.0.0.1:4447/file?path=${URLEncoder.encode(path, "UTF-8")}"
+        val agentUrl = "http://127.0.0.1:${AGENT_JSONRPC_PORT}/file?path=${URLEncoder.encode(path, "UTF-8")}"
         val httpClient = HttpClient()
         try {
             val (_, getResponse) = httpClient.get(

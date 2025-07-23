@@ -20,8 +20,6 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         OpenProfiles,
         OpenProviders,
         OpenLogs,
-        ToggleInput,
-        ToggleRecording,
         OpenSettings,
         OpenHelp,
         OpenAbout,
@@ -45,17 +43,6 @@ class MainDesign(context: Context) : Design<MainDesign.Request>(context) {
         }
     }
 
-
-    suspend fun setIsRecordingEnabled(enabled: Boolean) {
-        withContext(Dispatchers.Main) {
-            binding.isRecordingEnabled = enabled
-        }
-    }
-    suspend fun setIsInputEnabled(isInputEnabled: Boolean) {
-        withContext(Dispatchers.Main) {
-            binding.isInputEnabled = isInputEnabled
-        }
-    }
 
     suspend fun setForwarded(value: Long) {
         withContext(Dispatchers.Main) {

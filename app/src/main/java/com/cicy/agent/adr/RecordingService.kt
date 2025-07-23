@@ -132,10 +132,19 @@ class RecordingService : Service() {
 
         // 2. 构建通知
         return NotificationCompat.Builder(this, "recording_channel_id")
-            .setContentTitle("屏幕录制中")
-            .setContentText("正在后台录制屏幕内容")
+            .setContentTitle(DEFAULT_NOTIFY_TITLE)
+            .setContentText(RECORDING_NOTIFY_TEXT)
             .setSmallIcon(com.github.kr328.clash.R.mipmap.ic_stat_logo) // 必须设置有效图标
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this,
+                    R.id.nf_clash_status,
+                    Intent().setComponent(Components.MAIN_ACTIVITY)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                    pendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT)
+                )
+            )
             .build()
     }
 
@@ -355,6 +364,7 @@ class RecordingService : Service() {
 
     }
 
+    @SuppressLint("ImplicitSamInstance")
     fun destroy() {
         Log.d(logTag, "destroy service")
         _isReady = false

@@ -12,10 +12,13 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import com.github.kr328.clash.MainActivity
 import com.github.kr328.clash.common.compat.pendingIntentFlags
 import com.github.kr328.clash.common.constants.Components
 import com.github.kr328.clash.service.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import okhttp3.WebSocket
 import org.json.JSONArray
 import org.json.JSONObject
@@ -50,7 +53,7 @@ class LocalServer : Service() {
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle(DEFAULT_NOTIFY_TITLE)
             .setContentText(LOCAL_SERVER_NOTIFY_TEXT)
-            .setSmallIcon(com.github.kr328.clash.design.R.drawable.ic_clash) // Make sure you have this icon
+            .setSmallIcon(com.github.kr328.clash.design.R.mipmap.ic_stat_logo) // Make sure you have this icon
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(
                 PendingIntent.getActivity(
@@ -98,6 +101,16 @@ class LocalServer : Service() {
             httpServer?.start()
             messageHandler.sendAsyncMessageToActivity("onStartRecording")
             isRunning = true
+
+            CoroutineScope(Dispatchers.IO).launch {
+                while (true){
+                    delay(200L)
+                    if(httpServer?.wasStarted() == true){
+                        messageHandler.process("updateClash", JSONArray())
+                        break
+                    }
+                }
+            }
 
         } catch (e: IOException) {
             e.printStackTrace()

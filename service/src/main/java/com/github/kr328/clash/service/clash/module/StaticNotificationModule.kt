@@ -17,7 +17,7 @@ import kotlinx.coroutines.channels.Channel
 
 class StaticNotificationModule(service: Service) : Module<Unit>(service) {
     private val builder = NotificationCompat.Builder(service, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_logo_service)
+        .setSmallIcon(R.mipmap.ic_stat_logo)
         .setOngoing(true)
         .setColor(service.getColorCompat(R.color.color_clash))
         .setOnlyAlertOnce(true)
@@ -67,7 +67,7 @@ class StaticNotificationModule(service: Service) : Module<Unit>(service) {
         fun notifyLoadingNotification(service: Service) {
             val notification =
                 NotificationCompat.Builder(service, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_logo_service)
+                    .setSmallIcon(R.mipmap.ic_stat_logo)
                     .setOngoing(true)
                     .setColor(service.getColorCompat(R.color.color_clash))
                     .setOnlyAlertOnce(true)

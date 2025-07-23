@@ -5,6 +5,21 @@
         <variable
             name="self"
             type="com.github.kr328.clash.design.SettingsDesign" />
+        <variable
+            name="ip"
+            type="String" />
+
+        <variable
+            name="agentVersion"
+            type="String" />
+
+        <variable
+            name="isRecordingEnabled"
+            type="boolean" />
+
+        <variable
+            name="isInputEnabled"
+            type="boolean" />
 
         <import type="com.github.kr328.clash.design.SettingsDesign.Request" />
     </data>
@@ -55,6 +70,38 @@
                     android:onClick="@{() -> self.request(Request.StartMetaFeature)}"
                     app:icon="@drawable/ic_baseline_meta"
                     app:text="@string/meta_features" />
+
+
+                <com.github.kr328.clash.design.view.ActionLabel
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_assignment"
+                    android:onClick="@{() -> self.request(Request.ToggleInput)}"
+                    app:subtext="@{isInputEnabled ?  @string/enable: @string/disable}"
+                    app:text="@string/accessibility" />
+
+                <com.github.kr328.clash.design.view.ActionLabel
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_work"
+                    android:onClick="@{() -> self.request(Request.ToggleRecording)}"
+                    app:subtext="@{isRecordingEnabled ?  @string/enable: @string/disable}"
+                    app:text="@string/recording" />
+
+                <com.github.kr328.clash.design.view.ActionLabel
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_domain"
+                    app:subtext="@{ip}"
+                    app:text="@string/ip" />
+
+                <com.github.kr328.clash.design.view.ActionLabel
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_info"
+                    android:onClick="@{() -> self.request(Request.ReloadAgentVersion)}"
+                    app:subtext="@{agentVersion}"
+                    app:text="@string/agent_version" />
 
             </LinearLayout>
         </com.github.kr328.clash.design.view.ObservableScrollView>

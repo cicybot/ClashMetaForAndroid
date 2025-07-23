@@ -42,7 +42,7 @@ class MessageHandler(private val service: Service) {
         val httpClient = HttpClient()
         try {
             val (getStatus, getResponse) = httpClient.post(
-                "http://127.0.0.1:4447/",
+                "http://127.0.0.1:${AGENT_JSONRPC_PORT}/",
                 JSONObject().apply {
                     put("method",method)
                     put("params",params)

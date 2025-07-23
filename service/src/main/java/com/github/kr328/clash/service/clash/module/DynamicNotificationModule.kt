@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 
 class DynamicNotificationModule(service: Service) : Module<Unit>(service) {
     private val builder = NotificationCompat.Builder(service, StaticNotificationModule.CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_logo_service)
+        .setSmallIcon(R.mipmap.ic_stat_logo)
         .setOngoing(true)
         .setColor(service.getColorCompat(R.color.color_clash))
         .setOnlyAlertOnce(true)

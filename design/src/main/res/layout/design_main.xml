@@ -9,13 +9,6 @@
         <variable
             name="clashRunning"
             type="boolean" />
-
-        <variable
-            name="isRecordingEnabled"
-            type="boolean" />
-        <variable
-            name="isInputEnabled"
-            type="boolean" />
         <variable
             name="forwarded"
             type="String" />
@@ -123,24 +116,6 @@
                     android:visibility="@{clashRunning &amp;&amp; hasProviders ? View.VISIBLE : View.GONE}"
                     app:icon="@drawable/ic_baseline_swap_vertical_circle"
                     app:text="@string/providers" />
-
-
-                <com.github.kr328.clash.design.view.LargeActionLabel
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="@dimen/main_label_margin_vertical"
-                    android:onClick="@{() -> self.request(Request.ToggleInput)}"
-                    app:icon="@drawable/ic_baseline_assignment"
-                    app:text="@{isInputEnabled ? @string/accessibility_enable : @string/accessibility_disable}" />
-
-                <com.github.kr328.clash.design.view.LargeActionLabel
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="@dimen/main_label_margin_vertical"
-                    android:onClick="@{() -> self.request(Request.ToggleRecording)}"
-                    app:icon="@drawable/ic_baseline_assignment"
-                    app:text="@{isRecordingEnabled ? @string/recording_enable : @string/recording_disable}" />
-
 
                 <com.github.kr328.clash.design.view.LargeActionLabel
                     android:layout_width="match_parent"

@@ -6,27 +6,23 @@ import android.content.res.AssetManager
 import android.os.Build
 import android.provider.Settings
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
-import com.github.kr328.clash.BaseActivity
-import com.github.kr328.clash.R
+import com.github.kr328.clash.BaseMainActivity
 import com.github.kr328.clash.remote.Remote
 import com.hjq.permissions.XXPermissions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
-import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
 
 class MessageActivityHandler(
-    private val context: BaseActivity<*>,
+    private val context: BaseMainActivity<*>,
 ) : CoroutineScope by MainScope() {
     private val logTag = "MessageActivityHandler"
-    private fun getContext(): BaseActivity<*> {
+    private fun getContext(): BaseMainActivity<*> {
         return context
     }
 
